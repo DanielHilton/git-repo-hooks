@@ -1,0 +1,28 @@
+#!/bin/bash
+
+function run_test
+{
+    case `git rev-parse --abbrev-ref HEAD` in
+        master )
+            grep '^\d\.\d\.\d\(-\(alpha\|beta\)\)\?$' ${1} || {
+                echo "The commit to master must have a semver-style version number. (e.g. 1.2.3, 2.1.2-alpha or 3.2.1-beta)"
+                exit 1
+            }
+            ;;
+        * )
+            grep '^QT-\d\{1,5\} .*' ${1} || {
+                echo "The commit message must have a QT- JIRA ticket number."
+                exit 1
+            }
+            ;;
+    esac
+}
+
+case "${1}" in
+    --about )
+        echo -n "Checks commit message for presence of JIRA ticket."
+        ;;
+    * )
+        run_test "$@"
+        ;;
+esac
